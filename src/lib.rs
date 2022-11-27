@@ -15,6 +15,11 @@ pub mod buttons {
     use libtock_buttons as buttons;
     pub type Buttons = buttons::Buttons<super::runtime::TockSyscalls>;
 }
+pub mod buzzer {
+    use libtock_buzzer as buzzer;
+    pub type Buzzer = buzzer::Buzzer<super::runtime::TockSyscalls>;
+    pub use buzzer::note;
+}
 pub mod console {
     use libtock_console as console;
     pub type Console = console::Console<super::runtime::TockSyscalls>;
