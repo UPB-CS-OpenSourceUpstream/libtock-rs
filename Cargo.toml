@@ -20,6 +20,7 @@ libtock_low_level_debug = { path = "apis/low_level_debug" }
 libtock_platform = { path = "platform" }
 libtock_runtime = { path = "runtime" }
 libtock_temperature = { path = "apis/temperature" }
+libtock_adc = { path = "apis/adc"}
 
 [profile.dev]
 panic = "abort"
@@ -50,4 +51,5 @@ members = [
     "tools/print_sizes",
     "ufmt",
     "unittest",
+    "apis/adc",
 ]
