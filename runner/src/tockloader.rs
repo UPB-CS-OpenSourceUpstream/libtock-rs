@@ -11,7 +11,7 @@ pub fn deploy(cli: &Cli, platform: String, tab_path: PathBuf) -> Child {
     let flags: &[_] = match platform.as_str() {
         "clue_nrf52840" => &[],
         "hail" => &[],
-        "microbit_v2" => &["--bundle-apps"],
+        "microbit_v2" => &[],
         "nrf52" | "nrf52840" => &[
             "--jlink",
             "--arch",

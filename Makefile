@@ -40,7 +40,7 @@ release=--release
 endif
 
 .PHONY: setup
-setup: setup-qemu
+setup: #setup-qemu
 	cargo install elf2tab
 	cargo miri setup
 	rustup target add --toolchain stable thumbv7em-none-eabi

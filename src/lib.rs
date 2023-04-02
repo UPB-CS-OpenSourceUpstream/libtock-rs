@@ -44,3 +44,13 @@ pub mod temperature {
     pub type Temperature = temperature::Temperature<super::runtime::TockSyscalls>;
     pub use temperature::TemperatureListener;
 }
+
+pub mod proximity {
+    use libtock_proximity as proximity;
+    pub type Proximity = proximity::Proximity<super::runtime::TockSyscalls>;
+}
+
+pub mod sound_pressure {
+    use libtock_sound_pressure as sound_pressure;
+    pub type SoundPressure = sound_pressure::SoundPressure<super::runtime::TockSyscalls>;
+}

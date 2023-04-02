@@ -16,6 +16,8 @@ libtock_console = { path = "apis/console" }
 libtock_debug_panic = { path = "panic_handlers/debug_panic" }
 libtock_gpio = { path = "apis/gpio" }
 libtock_leds = { path = "apis/leds" }
+libtock_proximity = { path = "apis/proximity" }
+libtock_sound_pressure = { path = "apis/sound_pressure" }
 libtock_low_level_debug = { path = "apis/low_level_debug" }
 libtock_platform = { path = "platform" }
 libtock_runtime = { path = "runtime" }
@@ -50,4 +52,6 @@ members = [
     "tools/print_sizes",
     "ufmt",
     "unittest",
+    "apis/sound_pressure",
+    "apis/proximity"
 ]
