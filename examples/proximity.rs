@@ -25,10 +25,8 @@ fn main() {
         match Proximity::read_proximity() {
             Ok(temp_val) => writeln!(
                 Console::writer(),
-                "Temperature: {}{}.{}*C\n",
-                if temp_val > 0 { "" } else { "-" },
-                (temp_val) / 100,
-                (temp_val) % 100
+                "Proxi: {}\n",
+                (temp_val),
             )
             .unwrap(),
             Err(_) => writeln!(Console::writer(), "error while reading proxi",).unwrap(),

@@ -52,4 +52,6 @@ members = [
     "tools/print_sizes",
     "ufmt",
     "unittest",
+    "apis/sound_pressure",
+    "apis/proximity"
 ]

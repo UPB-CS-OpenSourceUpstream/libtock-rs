@@ -14,8 +14,11 @@ impl<S: Syscalls> SoundPressure<S> {
         S::command(DRIVER_NUM, EXISTS, 0, 0).to_result()
     }
 
-    pub fn read_sound_pressure() -> Result<u32, ErrorCode> {
-        S::command(DRIVER_NUM, 1, 0, 0).to_result()
+    /// Initiate a SoundPressure measurement.
+    ///
+    /// This function is used both for synchronous and asynchronous readings
+    pub fn read_sound_pressure() -> Result<(), ErrorCode> {
+        S::command(DRIVER_NUM, READ_TEMP, 0, 0).to_result()
     }
 
     /// Register an events listener
@@ -30,12 +33,36 @@ impl<S: Syscalls> SoundPressure<S> {
     pub fn unregister_listener() {
         S::unsubscribe(DRIVER_NUM, 0)
     }
+
+    /// Initiate a synchronous SoundPressure measurement.
+    /// Returns Ok(SoundPressure_value) if the operation was successful
+    /// SoundPressure_value is returned in hundreds of centigrades
+    pub fn read_sound_pressure_sync() -> Result<i32, ErrorCode> {
+        let SoundPressure_cell: Cell<Option<i32>> = Cell::new(None);
+        let listener = SoundPressureListener(|temp_val| {
+            SoundPressure_cell.set(Some(temp_val));
+        });
+        share::scope(|subscribe| {
+            if let Ok(()) = Self::register_listener(&listener, subscribe) {
+                if let Ok(()) = Self::read_sound_pressure() {
+                    while SoundPressure_cell.get() == None {
+                        S::yield_wait();
+                    }
+                }
+            }
+        });
+
+        match SoundPressure_cell.get() {
+            None => Err(ErrorCode::Busy),
+            Some(temp_val) => Ok(temp_val),
+        }
+    }
 }
 
 pub struct SoundPressureListener<F: Fn(i32)>(pub F);
 impl<F: Fn(i32)> Upcall<OneId<DRIVER_NUM, 0>> for SoundPressureListener<F> {
-    fn upcall(&self, prox_val: u32, _arg1: u32, _arg2: u32) {
-        self.0(prox_val as i32)
+    fn upcall(&self, temp_val: u32, _arg1: u32, _arg2: u32) {
+        self.0(temp_val as i32)
     }
 }
 

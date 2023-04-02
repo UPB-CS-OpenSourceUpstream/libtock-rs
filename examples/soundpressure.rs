@@ -22,7 +22,7 @@ fn main() {
     }
 
     loop {
-        match SoundPressure::read_sound_pressure() {
+        match SoundPressure::read_sound_pressure_sync() {
             Ok(temp_val) => writeln!(
                 Console::writer(),
                 "Pressure: {}\n",
