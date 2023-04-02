@@ -77,7 +77,7 @@ mod tests;
 // Driver number and command IDs
 // -----------------------------------------------------------------------------
 
-const DRIVER_NUM: u32 = 0x60000;
+const DRIVER_NUM: u32 = 0x60001;
 
 // Command IDs
 
