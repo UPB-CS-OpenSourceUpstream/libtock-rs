@@ -1,3 +1,6 @@
+//! A simple libtock-rs example. Checks for random number generator driver
+//! asks for some random numbers and prints them.
+
 #![no_main]
 #![no_std]
 
@@ -9,25 +12,24 @@ set_main! {main}
 stack_size! {0x200}
 
 fn main() {
-    match Rng::exists() {
-        Ok(()) => writeln!(
+    if Rng::exists().is_err() {
+        writeln!(
             Console::writer(),
-            "Random number generator driver available"
+            "Random number generator driver unavailable"
         )
-        .unwrap(),
-        Err(_) => {
-            writeln!(
-                Console::writer(),
-                "Random number generator driver unavailable"
-            )
-            .unwrap();
-            return;
-        }
+        .unwrap();
+        return;
     }
+
+    writeln!(
+        Console::writer(),
+        "Random number generator driver available"
+    )
+    .unwrap();
 
     let mut buf: [u8; 10] = [0; 10];
 
-    match Rng::get_random_sync(&mut buf[..], 8) {
+    match Rng::get_random_sync(&mut buf[..], 20) {
         Ok(bytes_received) => {
             writeln!(
                 Console::writer(),

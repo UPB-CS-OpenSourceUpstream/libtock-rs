@@ -6,6 +6,8 @@ use libtock_platform::{share, AllowRw, DefaultConfig, ErrorCode, Subscribe, Sysc
 pub struct Rng<S: Syscalls>(S);
 
 impl<S: Syscalls> Rng<S> {
+    /// Returns Ok() if the driver was present.This does not necessarily mean
+    /// that the driver is working.
     pub fn exists() -> Result<(), ErrorCode> {
         S::command(DRIVER_NUM, EXISTS, 0, 0).to_result()
     }
@@ -21,9 +23,9 @@ impl<S: Syscalls> Rng<S> {
     /// Sets the buffer in which the random numbers will be written
     pub fn set_buffer<'share>(
         buffer: &'share mut [u8],
-        allow_rw: share::Handle<AllowRw<'share, S, DRIVER_NUM, 0>>,
+        allow_rw: share::Handle<AllowRw<'share, S, DRIVER_NUM, RW_ALLOW>>,
     ) -> Result<(), ErrorCode> {
-        S::allow_rw::<DefaultConfig, DRIVER_NUM, 0>(allow_rw, buffer)
+        S::allow_rw::<DefaultConfig, DRIVER_NUM, RW_ALLOW>(allow_rw, buffer)
     }
 
     /// Initiates an async random generation for n bytes
@@ -32,12 +34,20 @@ impl<S: Syscalls> Rng<S> {
         S::command(DRIVER_NUM, ASK_FOR_RANDOM_BYTES, n, 0).to_result()
     }
 
-    ///Initiates a synchronous random number generation
+    /// Initiates a synchronous random number generation
     /// `n` random bytes will be written in `buf`
+    /// if n > buf.len() then only buf.len() bytes will be written in buf
     /// returns the number of bytes successfully written or error
     pub fn get_random_sync(buf: &mut [u8], n: u32) -> Result<u32, ErrorCode> {
         let listener: Cell<Option<(u32, u32)>> = Cell::new(None);
-        share::scope::<(AllowRw<_, DRIVER_NUM, 0>, Subscribe<_, DRIVER_NUM, 0>), _, _>(|handle| {
+        share::scope::<
+            (
+                AllowRw<_, DRIVER_NUM, RW_ALLOW>,
+                Subscribe<_, DRIVER_NUM, 0>,
+            ),
+            _,
+            _,
+        >(|handle| {
             let (allow_rw, subscribe) = handle.split();
 
             if let Ok(()) = Self::set_buffer(buf, allow_rw) {
@@ -68,3 +78,5 @@ const DRIVER_NUM: u32 = 0x40001;
 
 const EXISTS: u32 = 0;
 const ASK_FOR_RANDOM_BYTES: u32 = 1;
+
+const RW_ALLOW: u32 = 0;
