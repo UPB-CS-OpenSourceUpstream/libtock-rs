@@ -52,10 +52,11 @@ impl Rng {
                 .schedule_upcall(0, (0, self.idx.get() as u32, 0))
                 .expect("Unable to schedule upcall");
             self.getting_randomness.set(false);
+            self.random_numbers.set(None);
         }
     }
 
-    fn add_bytes_sync(&self, buf: &[u8]) {
+    pub fn add_bytes_sync(&self, buf: &[u8]) {
         self.random_numbers.set(Some(Vec::from(buf)))
     }
 }
