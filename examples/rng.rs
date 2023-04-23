@@ -29,7 +29,7 @@ fn main() {
 
     let mut buf: [u8; 10] = [0; 10];
 
-    match Rng::get_random_sync(&mut buf[..], 20) {
+    match Rng::get_random_sync(&mut buf[..], 10) {
         Ok(bytes_received) => {
             writeln!(
                 Console::writer(),
