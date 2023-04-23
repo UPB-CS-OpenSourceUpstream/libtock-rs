@@ -36,9 +36,13 @@ impl<S: Syscalls> Rng<S> {
 
     /// Initiates a synchronous random number generation
     /// `n` random bytes will be written in `buf`
-    /// if n > buf.len() then only buf.len() bytes will be written in buf
+    /// n must be smaller or equal to buf.len()
     /// returns the number of bytes successfully written or error
     pub fn get_random_sync(buf: &mut [u8], n: u32) -> Result<u32, ErrorCode> {
+        if n > (buf.len() as u32) {
+            return Err(ErrorCode::Size);
+        }
+
         let listener: Cell<Option<(u32, u32)>> = Cell::new(None);
         share::scope::<
             (

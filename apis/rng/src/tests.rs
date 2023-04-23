@@ -76,5 +76,5 @@ fn get_sync() {
 
     driver.add_bytes_sync(&[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
 
-    assert_eq!(Rng::get_random_sync(&mut buf, 11), Ok(10));
+    assert_eq!(Rng::get_random_sync(&mut buf, 11), Err(ErrorCode::Size));
 }
