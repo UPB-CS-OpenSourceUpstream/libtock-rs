@@ -15,24 +15,14 @@ set_main! {main}
 stack_size! {0x200}
 
 fn main() {
-    match Humidity::exists() {
-        Ok(()) => writeln!(Console::writer(), "humidity driver available").unwrap(),
-        Err(_) => {
-            writeln!(Console::writer(), "humidity driver unavailable").unwrap();
-            return;
-        }
+    if Humidity::exists().is_err() {
+        writeln!(Console::writer(), "humidity driver unavailable").unwrap();
+        return;
     }
 
     loop {
-        match Humidity::read_humidity_sync() {
-            Ok(hum_val) => writeln!(
-                Console::writer(),
-                "Humidity: {}{}.{}*C\n",
-                if hum_val > 0 { "" } else { "-" },
-                i32::abs(hum_val) / 100,
-                i32::abs(hum_val) % 100
-            )
-            .unwrap(),
+        match Humidity::read_sync() {
+            Ok(hum_val) => writeln!(Console::writer(), "Humidity: {}%\n", hum_val).unwrap(),
             Err(_) => writeln!(Console::writer(), "error while reading humidity",).unwrap(),
         }
 

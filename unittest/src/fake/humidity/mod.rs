@@ -1,5 +1,5 @@
 //! Fake implementation of the Humidity API, documented here:
-//! https://github.com/tock/tock/blob/master/doc/syscalls/60000_ambient_humidity.md
+//! https://github.com/tock/tock/blob/master/doc/syscalls/60001_humidity.md
 //!
 //! Like the real API, `Humidity` controls a fake humidity sensor. It provides
 //! a function `set_value` used to immediately call an upcall with a humidity value read by the sensor
