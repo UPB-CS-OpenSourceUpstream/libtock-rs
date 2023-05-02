@@ -24,10 +24,7 @@ pub mod console {
 pub mod gpio {
     use libtock_gpio as gpio;
     pub type Gpio = gpio::Gpio<super::runtime::TockSyscalls>;
-    pub use gpio::{
-        Error, GpioInterruptListener, GpioState, InputPin, OutputPin, PinInterruptEdge, Pull,
-        PullDown, PullNone, PullUp,
-    };
+    pub use gpio::{Error, GpioInterruptListener, GpioState, InputPin, OutputPin, PinInterruptEdge, Pull, PullDown, PullNone, PullUp};
 }
 
 pub mod humidity {

@@ -34,23 +34,21 @@ impl<S: Syscalls> Humidity<S> {
 
     /// Initiate a synchronous humidity measurement.
     /// Returns Ok(humidity_value) if the operation was successful
-    /// humidity_value is returned in hundreds of centigrades
+    /// humidity_value is returned in hundreds of percent
     pub fn read_sync() -> Result<u32, ErrorCode> {
         let listener: Cell<Option<(u32,)>> = Cell::new(None);
         share::scope(|subscribe| {
-            if let Ok(()) = Self::register_listener(&listener, subscribe) {
-                if let Ok(()) = Self::read() {
-                    while listener.get() == None {
-                        S::yield_wait();
-                    }
-                }
+            Self::register_listener(&listener, subscribe)?;
+            Self::read()?;
+            while listener.get() == None {
+                S::yield_wait();
             }
-        });
 
-        match listener.get() {
-            None => Err(ErrorCode::Busy),
-            Some(hum_val) => Ok(hum_val.0),
-        }
+            match listener.get() {
+                None => Err(ErrorCode::Busy),
+                Some(hum_val) => Ok(hum_val.0),
+            }
+        })
     }
 }
 
