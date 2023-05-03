@@ -39,7 +39,7 @@ impl<S: Syscalls, C: Config> Console<S, C> {
     /// This is an alternative to `fmt::Write::write`
     /// because this can actually return an error code.
     pub fn write(s: &[u8]) -> Result<(), ErrorCode> {
-        if s.len() == 0 {
+        if s.is_empty() {
             return Ok(());
         }
         let called: Cell<Option<(u32,)>> = Cell::new(None);
