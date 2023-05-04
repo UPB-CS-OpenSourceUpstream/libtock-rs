@@ -47,6 +47,19 @@ pub enum GestureEvent {
     ZoomOut,
 }
 
+impl GestureEvent {
+    fn from_u32(value: u32) -> GestureEvent {
+        match value {
+            1 => GestureEvent::SwipeUp,
+            2 => GestureEvent::SwipeDown,
+            3 => GestureEvent::SwipeLeft,
+            4 => GestureEvent::SwipeRight,
+            5 => GestureEvent::ZoomIn,
+            _ => GestureEvent::ZoomOut,
+        }
+    }
+}
+
 impl<S: Syscalls> Touch<S> {
     pub fn exists() -> Result<(), ErrorCode> {
         S::command(DRIVER_NUM, command::DRIVER_CHECK, 0, 0).to_result()
@@ -65,6 +78,15 @@ impl<S: Syscalls> Touch<S> {
         subscribe: share::Handle<Subscribe<'share, S, DRIVER_NUM, { subscribe::SINGLE }>>,
     ) -> Result<(), ErrorCode> {
         S::subscribe::<_, _, DefaultConfig, DRIVER_NUM, { subscribe::SINGLE }>(subscribe, listener)
+    }
+
+    pub fn register_gestures_listener<'share>(
+        listener: &'share Cell<Option<(u32,)>>,
+        subscribe: share::Handle<Subscribe<'share, S, DRIVER_NUM, { subscribe::GESTURES }>>,
+    ) -> Result<(), ErrorCode> {
+        S::subscribe::<_, _, DefaultConfig, DRIVER_NUM, { subscribe::GESTURES }>(
+            subscribe, listener,
+        )
     }
 
     /// Waits for a single touch event, returning details about it in a TouchEvent structure:
@@ -95,7 +117,28 @@ impl<S: Syscalls> Touch<S> {
             }),
         }
     }
-    
+
+    /// Waits for a gesture event, returning it's type
+    pub fn wait_for_gesture() -> Result<GestureEvent, ErrorCode> {
+        let listener: Cell<Option<(u32,)>> = Cell::new(None);
+        share::scope(|subscribe| {
+            if let Ok(()) = Self::register_gestures_listener(&listener, subscribe) {
+                while listener.get().is_none() {
+                    S::yield_wait();
+                }
+            }
+        });
+
+        match listener.get() {
+            None => Err(ErrorCode::Fail),
+            Some(val) => Ok(GestureEvent::from_u32(val.0)),
+        }
+    }
+
+    /// Returns the number of available touches
+    pub fn get_number_of_touches() -> Result<u32, ErrorCode> {
+        S::command(DRIVER_NUM, command::TOUCHES_NUM, 0, 0).to_result()
+    }
 }
 
 // -----------------------------------------------------------------------------
