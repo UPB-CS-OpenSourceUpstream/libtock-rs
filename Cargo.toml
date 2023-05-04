@@ -21,6 +21,7 @@ libtock_platform = { path = "platform" }
 libtock_proximity = { path = "apis/proximity" }
 libtock_runtime = { path = "runtime" }
 libtock_temperature = { path = "apis/temperature" }
+libtock_touch = { path = "apis/touch" }
 
 [profile.dev]
 panic = "abort"
@@ -43,6 +44,7 @@ members = [
     "apis/low_level_debug",
     "apis/proximity",
     "apis/temperature",
+    "apis/touch",
     "panic_handlers/debug_panic",
     "panic_handlers/small_panic",
     "platform",
