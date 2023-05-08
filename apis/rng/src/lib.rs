@@ -54,16 +54,15 @@ impl<S: Syscalls> Rng<S> {
         >(|handle| {
             let (allow_rw, subscribe) = handle.split();
 
-            if let Ok(()) = Self::set_buffer(buf, allow_rw) {
-                if let Ok(()) = Self::register_listener(&listener, subscribe) {
-                    if let Ok(()) = Self::get_random(n) {
-                        while listener.get() == None {
-                            S::yield_wait();
-                        }
-                    }
-                }
+            Self::set_buffer(buf, allow_rw)?;
+            Self::register_listener(&listener, subscribe)?;
+            Self::get_random(n)?;
+            while listener.get() == None {
+                S::yield_wait();
             }
-        });
+
+            Ok(())
+        })?;
 
         match listener.get() {
             Some((_, bytes_received)) => Ok(bytes_received),
