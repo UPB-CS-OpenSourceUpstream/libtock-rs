@@ -39,6 +39,7 @@ impl<S: Syscalls, C: Config> Console<S, C> {
     /// This is an alternative to `fmt::Write::write`
     /// because this can actually return an error code.
     pub fn write(s: &[u8]) -> Result<(), ErrorCode> {
+        // for an empty string the driver would never schedule an upcall, so the app would yield infinitely
         if s.is_empty() {
             return Ok(());
         }
@@ -57,11 +58,7 @@ impl<S: Syscalls, C: Config> Console<S, C> {
 
             S::subscribe::<_, _, C, DRIVER_NUM, { subscribe::WRITE }>(subscribe, &called)?;
 
-            if let Err(err) = S::command(DRIVER_NUM, command::WRITE, s.len() as u32, 0)
-                .to_result::<(), ErrorCode>()
-            {
-                return Err(err);
-            }
+            S::command(DRIVER_NUM, command::WRITE, s.len() as u32, 0).to_result()?;
 
             loop {
                 S::yield_wait();
