@@ -47,3 +47,9 @@ pub mod temperature {
     pub type Temperature = temperature::Temperature<super::runtime::TockSyscalls>;
     pub use temperature::TemperatureListener;
 }
+
+pub mod adc {
+    use libtock_adc as adc;
+    pub type Adc = adc::Adc<super::runtime::TockSyscalls>;
+    pub use adc::AdcListener;
+}
