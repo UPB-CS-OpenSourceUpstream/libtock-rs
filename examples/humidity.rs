@@ -22,7 +22,13 @@ fn main() {
 
     loop {
         match Humidity::read_sync() {
-            Ok(hum_val) => writeln!(Console::writer(), "Humidity: {}%\n", hum_val).unwrap(),
+            Ok(hum_val) => writeln!(
+                Console::writer(),
+                "Humidity: {}.{}%\n",
+                hum_val / 100,
+                hum_val % 100
+            )
+            .unwrap(),
             Err(_) => writeln!(Console::writer(), "error while reading humidity",).unwrap(),
         }
 
