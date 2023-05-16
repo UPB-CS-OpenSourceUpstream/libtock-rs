@@ -44,3 +44,8 @@ pub mod temperature {
     pub type Temperature = temperature::Temperature<super::runtime::TockSyscalls>;
     pub use temperature::TemperatureListener;
 }
+
+pub mod text_screen {
+    use libtock_text_screen as text_screen;
+    pub type TextScreen = text_screen::TextScreen<super::runtime::TockSyscalls>;
+}
