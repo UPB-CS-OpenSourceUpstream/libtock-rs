@@ -1,7 +1,9 @@
 #![no_std]
 
 use core::cell::Cell;
-use libtock_platform::{share, DefaultConfig, ErrorCode, Subscribe, Syscalls};
+use libtock_platform::{
+    share, subscribe::OneId, DefaultConfig, ErrorCode, Subscribe, Syscalls, Upcall,
+};
 
 pub struct Humidity<S: Syscalls>(S);
 
@@ -20,8 +22,8 @@ impl<S: Syscalls> Humidity<S> {
     }
 
     /// Register an events listener
-    pub fn register_listener<'share>(
-        listener: &'share Cell<Option<(u32,)>>,
+    pub fn register_listener<'share, F: Fn(u32)>(
+        listener: &'share HumidityListener<F>,
         subscribe: share::Handle<Subscribe<'share, S, DRIVER_NUM, 0>>,
     ) -> Result<(), ErrorCode> {
         S::subscribe::<_, _, DefaultConfig, DRIVER_NUM, 0>(subscribe, listener)
@@ -36,19 +38,38 @@ impl<S: Syscalls> Humidity<S> {
     /// Returns Ok(humidity_value) if the operation was successful
     /// humidity_value is returned in hundreds of percent
     pub fn read_sync() -> Result<u32, ErrorCode> {
-        let listener: Cell<Option<(u32,)>> = Cell::new(None);
+        let humidity_cell: Cell<Option<u32>> = Cell::new(None);
+        let listener = HumidityListener(|humidity_val| {
+            humidity_cell.set(Some(humidity_val));
+        });
         share::scope(|subscribe| {
             Self::register_listener(&listener, subscribe)?;
             Self::read()?;
-            while listener.get() == None {
+            while humidity_cell.get() == None {
                 S::yield_wait();
             }
 
-            match listener.get() {
+            match humidity_cell.get() {
                 None => Err(ErrorCode::Busy),
-                Some(hum_val) => Ok(hum_val.0),
+                Some(humidity_val) => Ok(humidity_val),
             }
         })
+    }
+}
+
+/// A wrapper around a closure to be registered and called when
+/// a humidity reading is done.
+///
+/// ```ignore
+/// let listener = HumidityListener(|humidity_val| {
+///     // make use of the humidity value
+/// });
+/// ```
+pub struct HumidityListener<F: Fn(u32)>(pub F);
+
+impl<F: Fn(u32)> Upcall<OneId<DRIVER_NUM, 0>> for HumidityListener<F> {
+    fn upcall(&self, humidity: u32, _arg1: u32, _arg2: u32) {
+        self.0(humidity)
     }
 }
 

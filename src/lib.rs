@@ -48,6 +48,7 @@ pub mod gpio {
 pub mod humidity {
     use libtock_humidity as humidity;
     pub type Humidity = humidity::Humidity<super::runtime::TockSyscalls>;
+    pub use humidity::HumidityListener;
 }
 
 pub mod leds {

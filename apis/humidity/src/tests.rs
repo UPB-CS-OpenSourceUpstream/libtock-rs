@@ -2,6 +2,8 @@ use core::cell::Cell;
 use libtock_platform::{share, ErrorCode, Syscalls, YieldNoWaitReturn};
 use libtock_unittest::fake;
 
+use crate::HumidityListener;
+
 type Humidity = super::Humidity<fake::Syscalls>;
 
 #[test]
@@ -38,20 +40,20 @@ fn register_unregister_listener() {
     let driver = fake::Humidity::new();
     kernel.add_driver(&driver);
 
-    let humidity_listener: Cell<Option<(u32,)>> = Cell::new(None);
+    let humidity_cell: Cell<Option<u32>> = Cell::new(None);
+    let listener = HumidityListener(|val| {
+        humidity_cell.set(Some(val));
+    });
     share::scope(|subscribe| {
         assert_eq!(Humidity::read(), Ok(()));
         driver.set_value(100);
         assert_eq!(fake::Syscalls::yield_no_wait(), YieldNoWaitReturn::NoUpcall);
 
-        assert_eq!(
-            Humidity::register_listener(&humidity_listener, subscribe),
-            Ok(())
-        );
+        assert_eq!(Humidity::register_listener(&listener, subscribe), Ok(()));
         assert_eq!(Humidity::read(), Ok(()));
         driver.set_value(100);
         assert_eq!(fake::Syscalls::yield_no_wait(), YieldNoWaitReturn::Upcall);
-        assert_eq!(humidity_listener.get(), Some((100,)));
+        assert_eq!(humidity_cell.get(), Some(100));
 
         Humidity::unregister_listener();
         assert_eq!(Humidity::read(), Ok(()));
