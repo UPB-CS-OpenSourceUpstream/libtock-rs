@@ -26,6 +26,7 @@ libtock_proximity = { path = "apis/proximity" }
 libtock_runtime = { path = "runtime" }
 libtock_sound_pressure = {path = "apis/sound_pressure"}
 libtock_temperature = { path = "apis/temperature" }
+libtock_humidity = { path = "apis/humidity" }
 
 [profile.dev]
 panic = "abort"
@@ -46,6 +47,7 @@ members = [
     "apis/buttons",
     "apis/buzzer",
     "apis/console",
+    "apis/humidity",
     "apis/leds",
     "apis/low_level_debug",
     "apis/ninedof",

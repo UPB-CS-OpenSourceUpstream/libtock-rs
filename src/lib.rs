@@ -44,6 +44,13 @@ pub mod gpio {
         PullDown, PullNone, PullUp,
     };
 }
+
+pub mod humidity {
+    use libtock_humidity as humidity;
+    pub type Humidity = humidity::Humidity<super::runtime::TockSyscalls>;
+    pub use humidity::HumidityListener;
+}
+
 pub mod leds {
     use libtock_leds as leds;
     pub type Leds = leds::Leds<super::runtime::TockSyscalls>;
