@@ -25,6 +25,7 @@ mod sound_pressure;
 mod syscall_driver;
 mod syscalls;
 mod temperature;
+mod humidity;
 
 pub use adc::Adc;
 pub use alarm::Alarm;
@@ -42,6 +43,7 @@ pub use sound_pressure::SoundPressure;
 pub use syscall_driver::SyscallDriver;
 pub use syscalls::Syscalls;
 pub use temperature::Temperature;
+pub use humidity::Humidity;
 
 #[cfg(test)]
 mod kernel_tests;
